@@ -35,8 +35,10 @@ body.locked>header,body.locked>main,body.locked>footer{visibility:hidden;pointer
       const card = document.createElement('article');
       card.className = 'card';
       card.dataset.productId = product.id;
+      const descriptionHtml = product.short_description || product.description || '';
+      const descriptionImage = descriptionHtml.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
       const image = document.createElement('img');
-      image.src = product.images?.[0]?.src || '/public/orbi9newlogo.png';
+      image.src = product.images?.[0]?.src || descriptionImage || '/public/orbi9newlogo.png';
       image.alt = product.images?.[0]?.alt || product.name;
       const link = document.createElement('a');
       link.href = product.permalink || '#';
