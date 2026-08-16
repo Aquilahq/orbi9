@@ -2,7 +2,7 @@
 /**
  * WooCommerce product archive wrapper.
  *
- * @package ORB9
+ * @package Orbi9
  */
 defined('ABSPATH') || exit;
 get_header('shop');
