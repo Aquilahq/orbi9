@@ -1,34 +1,27 @@
-name: Deploy ORBI9
+name: Validate ORB9 WordPress theme
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
+
 jobs:
-  build:
+  validate-theme:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate PHP theme files
+        run: find orb9 -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate JavaScript
+        run: node --check orb9/assets/js/orb9.js
+
+      - name: Build installable theme package
+        run: |
+          zip -qr orb9.zip orb9
+          unzip -t orb9.zip
