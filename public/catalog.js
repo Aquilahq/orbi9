@@ -26,7 +26,14 @@
   if (detailProduct) return renderDetail(detailProduct);
 
   const shopGrid = document.querySelector('#shop .grid');
-  if (shopGrid) shopGrid.innerHTML = products.map(card).join('');
+  if (shopGrid) {
+    const searchBox = document.querySelector('#catalog-search');
+    const searchInput = document.querySelector('#catalog-search-input');
+    const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = products.filter(p => `${p.name} ${p.category} ${p.description || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.map(card).join(''); };
+    shopGrid.innerHTML = products.map(card).join('');
+    searchInput?.addEventListener('input', renderSearchResults);
+    document.querySelector('#search-toggle')?.addEventListener('click', event => { event.preventDefault(); if (searchBox) searchBox.hidden = false; searchInput?.focus(); });
+  }
   const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
   const categoryGrid = document.querySelector('#categories .grid');
   if (categoryGrid) categoryGrid.innerHTML = categories.map(category => `<article class="card"><div class="eyebrow">Collection</div><h3>${esc(category)}</h3><p>${products.filter(p => p.category === category).length} pieces in the catalogue.</p><a class="product-link" href="#shop">Explore ${esc(category)}</a></article>`).join('');
