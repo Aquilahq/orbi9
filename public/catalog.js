@@ -1,10 +1,6 @@
 (() => {
-  const STORAGE_KEY = 'orbi9-catalog-v1';
-  const seed = [
-    { id: 'orb-001', name: 'Chrome Starburst Camera', slug: 'chrome-starburst-camera', category: 'Cameras', price: 185, image_url: '/orbi9newlogo.png', description: 'A collectible mid-century camera with sculptural chrome detailing and a beautifully tactile mechanical feel.' },
-    { id: 'orb-002', name: 'Apollo Desk Radio', slug: 'apollo-desk-radio', category: 'Radios', price: 240, image_url: '/orbilogo.png', description: 'A space-age tabletop radio selected for its warm analogue character and iconic silhouette.' },
-    { id: 'orb-003', name: 'Retro Computer Terminal', slug: 'retro-computer-terminal', category: 'Computing', price: 395, image_url: '/orbi9newlogo.png', description: 'A distinctive vintage computing object for collectors, studios and curious desks.' }
-  ];
+  const STORAGE_KEY = 'orbi9-catalog-v2';
+  const seed = [];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   const slugify = value => String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const getProducts = () => { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(data) ? data : seed; } catch { return seed; } };
