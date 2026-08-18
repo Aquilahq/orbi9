@@ -26,6 +26,7 @@ h1,h2,h3,.logo-title,.trust b{ text-shadow:none }
   let cart = JSON.parse(localStorage.getItem(key) || '[]');
   const money = n => `$${Number(n).toFixed(2)}`;
   const save = () => localStorage.setItem(key, JSON.stringify(cart));
+  window.addEventListener('orbi9-cart-updated', () => { cart = JSON.parse(localStorage.getItem(key) || '[]'); count(); });
   const syncCartProducts = () => { try { const products = JSON.parse(localStorage.getItem('orbi9-catalog-v2') || '[]'); const byId = new Map(products.map(p => [String(p.id), p])); cart = cart.map(item => { const p = byId.get(String(item.id)); return p ? {...item, name:p.name, price:Number(p.price)||0, img:p.images?.[p.primaryImage || 0] || p.images?.[0] || item.img} : item; }); save(); } catch {} };
   const count = () => document.getElementById('cart-count').textContent = cart.reduce((a, x) => a + x.qty, 0);
   const panel = document.createElement('aside');
