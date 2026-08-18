@@ -7,7 +7,8 @@
   // image with `primaryImage`; older imports may still use `image_url`.
   const productImage = product => {
     const images = Array.isArray(product?.images) ? product.images : [];
-    return product?.image_url || images[Number.isInteger(product?.primaryImage) ? product.primaryImage : 0] || images[0] || product?.image || '/orbi9newlogo.png';
+    const value = images[Number.isInteger(Number(product?.primaryImage)) ? Number(product.primaryImage) : 0] || images[0];
+    return product?.image_url || (typeof value === 'string' ? value : value?.src || value?.url) || product?.image || '/orbi9newlogo.png';
   };
   const getProducts = () => { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(data) ? data : seed; } catch { return seed; } };
   const saveProducts = products => localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
@@ -23,7 +24,9 @@
     const main = document.querySelector('main') || document.body;
     [...main.children].forEach(node => node.style.display = 'none');
     const detail = document.createElement('section'); detail.className = 'orbi9-detail';
-    detail.innerHTML = `<div><img src="${esc(productImage(product))}" alt="${esc(product.name)}"></div><div class="orbi9-detail-copy"><div class="detail-category">${esc(product.category)}</div><h1>${esc(product.name)}</h1><div class="detail-price">$${Number(product.price || 0).toFixed(2)}</div><p>${esc(product.description || 'A considered object from the Orbi9 catalogue.')}</p><a class="orbi9-back" href="/">Back to catalogue</a></div>`;
+    detail.innerHTML = `<div><img src="${esc(productImage(product))}" alt="${esc(product.name)}"></div><div class="orbi9-detail-copy"><div class="detail-category">${esc(product.category)}</div><h1>${esc(product.name)}</h1><div class="detail-price">$${Number(product.price || 0).toFixed(2)}</div><p>${esc(product.description || 'A considered object from the Orbi9 catalogue.')}</p><button class="btn detail-add-cart" type="button">ADD TO BAG</button><a class="orbi9-back" href="/">Back to catalogue</a></div>`;
+    const addButton = detail.querySelector('.detail-add-cart');
+    addButton.onclick = () => { const key = 'orbi9-cart'; const cart = JSON.parse(localStorage.getItem(key) || '[]'); const item = cart.find(x => String(x.id) === String(product.id)); if (item) item.qty += 1; else cart.push({id: product.id, name: product.name, price: Number(product.price || 0), img: productImage(product), qty: 1}); localStorage.setItem(key, JSON.stringify(cart)); window.dispatchEvent(new Event('orbi9-cart-updated')); addButton.textContent = 'ADDED ✓'; setTimeout(() => { addButton.textContent = 'ADD TO BAG'; }, 1200); };
     main.append(detail); document.title = `${product.name} — ORBI9`;
   };
   const products = getProducts();
