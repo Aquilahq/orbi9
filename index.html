@@ -43,7 +43,7 @@ h1,h2,h3,.logo-title,.trust b{ text-shadow:none }
       const descriptionHtml = product.short_description || product.description || '';
       const descriptionImage = descriptionHtml.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
       const image = document.createElement('img');
-      image.src = product.images?.[0]?.src || descriptionImage || '/public/orbi9newlogo.png';
+      image.src = product.images?.[0]?.src || descriptionImage || '/orbi9newlogo.png';
       image.alt = product.images?.[0]?.alt || product.name;
       const link = document.createElement('a');
       link.href = product.permalink || '#';
@@ -94,9 +94,9 @@ h1,h2,h3,.logo-title,.trust b{ text-shadow:none }
 :root{--bg:#050b12;--panel:#0b1622;--raised:#102538;--brass:#56d9ff;--light:#e9fbff;--muted:#8db7c9;--line:#16445b;--amber:#18cfff}
 body{background:radial-gradient(circle at 75% 8%,#173c70 0,#071326 38%),var(--bg);font-family:'Oswald',sans-serif;color:var(--light)}
 body:before{opacity:.08;background-image:repeating-linear-gradient(0deg,#fff1 0 1px,transparent 1px 5px),radial-gradient(#18cfff 1px,transparent 1px);mix-blend-mode:screen}
-header{background:#07131ee8;border-bottom:1px solid var(--brass);box-shadow:0 0 24px #18cfff22}
+header{position:relative;background:#07131ee8;border-bottom:0;box-shadow:0 0 24px #18cfff22}header:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#18cfff;box-shadow:0 0 8px #18cfff66;z-index:0}header>nav,header>.icons{position:relative;z-index:1}
 .logo-title{color:#e9fbff;text-shadow:0 0 12px #18cfff99;font-family:'Oswald',sans-serif;font-weight:700}
-.hero{background:linear-gradient(90deg,#050b12 16%,#050b1290 60%,#050b1230),url('/public/orbi9newlogo.png') 82% center/contain no-repeat;box-shadow:inset 0 -80px 100px #050b12;}
+.hero{background:linear-gradient(90deg,#050b12 16%,#050b1290 60%,#050b1230),url('/orbi9newlogo.png') 82% center/contain no-repeat;box-shadow:inset 0 -80px 100px #050b12;}
 .hero:after{color:#18cfff18;border-color:#18cfff22}
 h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shadow:0 0 12px #18cfff33}
 .eyebrow,.meta{color:#18cfff}.btn{border-color:#18cfff;background:linear-gradient(135deg,#18cfff,#087aa6);color:#031018;box-shadow:0 0 18px #18cfff55}
