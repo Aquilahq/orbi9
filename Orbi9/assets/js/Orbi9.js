@@ -34,6 +34,7 @@
   };
   const text = html => { const el = document.createElement('div'); el.innerHTML = html || ''; return el.textContent.trim(); };
   const productPrice = product => Number(product.prices?.price || product.price || 0) / 10 ** Number(product.prices?.currency_minor_unit || 2);
+  const stockLimit = product => product.is_in_stock === false || product.stock_status === 'outofstock' ? 0 : (product.stock_quantity !== null && product.stock_quantity !== undefined && Number.isFinite(Number(product.stock_quantity)) ? Math.max(0, Number(product.stock_quantity)) : Infinity);
   const renderProducts = products => {
     const grid = document.querySelector('#shop .grid');
     grid.textContent = '';
@@ -43,7 +44,7 @@
       const card = document.createElement('article');
       card.className = 'card';
       card.dataset.productId = product.id;
-      const descriptionHtml = product.short_description || product.description || '';
+      const descriptionHtml = product.short_description || '';
       const descriptionImage = descriptionHtml.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
       const image = document.createElement('img');
       image.src = product.images?.[0]?.src || descriptionImage || '/public/orbi9newlogo.png';
@@ -55,19 +56,25 @@
       link.append(name);
       const description = document.createElement('span');
       description.className = 'meta';
-      description.textContent = text(product.short_description || product.description) || `PRODUCT ID ${product.id}`;
+      description.textContent = text(product.short_description) || `PRODUCT ID ${product.id}`;
       const priceEl = document.createElement('p');
       priceEl.className = 'price';
       priceEl.textContent = money(price);
+      const available = stockLimit(product);
       const stock = document.createElement('span');
       stock.className = 'meta';
-      stock.textContent = product.stock_status === 'outofstock' ? 'SOLD OUT' : 'IN STOCK';
+      stock.textContent = available === 0 ? 'SOLD OUT' : available === Infinity ? 'IN STOCK' : `${available} IN STOCK`;
+      const quantity = document.createElement('input');
+      quantity.className = 'card-quantity';
+      quantity.type = 'number'; quantity.min = '1'; quantity.value = '1';
+      if (available !== Infinity) quantity.max = String(available);
+      quantity.setAttribute('aria-label', `Quantity for ${product.name}`);
       const button = document.createElement('button');
       button.className = 'btn add-cart';
-      button.textContent = product.stock_status === 'outofstock' ? 'SOLD OUT' : 'ADD TO BAG';
-      button.disabled = product.stock_status === 'outofstock';
-      button.onclick = () => { const item = cart.find(x => x.id === product.id); item ? item.qty++ : cart.push({ id: product.id, name: product.name, price, img: image.src, qty: 1 }); save(); count(); button.textContent = 'ADDED ✓'; setTimeout(() => { button.textContent = 'ADD TO BAG'; }, 1200); };
-      card.append(image, link, description, priceEl, stock, button);
+      button.textContent = available === 0 ? 'SOLD OUT' : 'ADD TO BAG';
+      button.disabled = available === 0;
+      button.onclick = () => { const requested = Math.max(1, Number(quantity.value) || 1); const item = cart.find(x => x.id === product.id); const current = item?.qty || 0; const qty = Math.min(requested, available === Infinity ? requested : Math.max(0, available - current)); if (!qty) { stock.textContent = 'MAXIMUM IN CART'; return; } item ? item.qty += qty : cart.push({ id: product.id, name: product.name, price, img: image.src, qty }); save(); count(); button.textContent = 'ADDED ✓'; setTimeout(() => { button.textContent = 'ADD TO BAG'; }, 1200); };
+      card.append(image, link, description, priceEl, stock, quantity, button);
       grid.append(card);
     });
   };
