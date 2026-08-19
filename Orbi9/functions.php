@@ -16,6 +16,8 @@ function Orbi9_assets() {
     wp_localize_script('Orbi9-app', 'Orbi9Settings', array(
         'productsUrl' => esc_url_raw(rest_url('wc/store/v1/products')),
         'siteUrl' => esc_url_raw(home_url('/')),
+        // Set ORBI9_CHECKOUT_URL in wp-config.php to the server-side Stripe session endpoint.
+        'checkoutUrl' => defined('ORBI9_CHECKOUT_URL') ? esc_url_raw(ORBI9_CHECKOUT_URL) : '',
     ));
 }
 add_action('wp_enqueue_scripts', 'Orbi9_assets');

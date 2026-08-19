@@ -13,7 +13,25 @@
   const open = () => { panel.classList.add('open'); render(); };
   document.getElementById('cart-button').onclick = open;
   document.getElementById('cart-button').onkeydown = e => { if (e.key === 'Enter') open(); };
-  panel.onclick = e => { if (e.target.classList.contains('cart-close')) panel.classList.remove('open'); if (e.target.dataset.remove !== undefined) { cart.splice(Number(e.target.dataset.remove), 1); save(); render(); } if (e.target.classList.contains('cart-checkout')) document.querySelector('.cart-message').textContent = 'Checkout is ready for your payment provider connection.'; };
+  panel.onclick = e => { if (e.target.classList.contains('cart-close')) panel.classList.remove('open'); if (e.target.dataset.remove !== undefined) { cart.splice(Number(e.target.dataset.remove), 1); save(); render(); } if (e.target.classList.contains('cart-checkout')) checkout(); };
+  const checkout = async () => {
+    const message = document.querySelector('.cart-message');
+    if (!cart.length) { message.textContent = 'Your bag is empty.'; return; }
+    const checkoutUrl = window.orbi9Settings?.checkoutUrl;
+    if (!checkoutUrl) { message.textContent = 'Checkout is temporarily unavailable. Please try again soon.'; return; }
+    const button = panel.querySelector('.cart-checkout');
+    button.disabled = true;
+    message.textContent = 'Opening secure checkout…';
+    try {
+      const response = await fetch(checkoutUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: cart.map(({ id, name, price, qty }) => ({ id, name, price, quantity: qty })) }) });
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.message || 'Checkout could not be started');
+      window.location.assign(result.url);
+    } catch (error) {
+      button.disabled = false;
+      message.textContent = error.message || 'Checkout could not be started. Please try again.';
+    }
+  };
   const text = html => { const el = document.createElement('div'); el.innerHTML = html || ''; return el.textContent.trim(); };
   const productPrice = product => Number(product.prices?.price || product.price || 0) / 10 ** Number(product.prices?.currency_minor_unit || 2);
   const renderProducts = products => {
