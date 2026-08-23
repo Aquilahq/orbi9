@@ -1,4 +1,4 @@
-import { supabase, fetchProducts, saveProduct, removeProduct, productFromRow } from './src/supabase.js';
+import { supabase, fetchProducts, saveProduct, removeProduct, productFromRow } from './orbi9-database.js';
 
 const $ = id => document.getElementById(id);
 let products = [], current = null, mediaIndex = 0, pendingFiles = [];

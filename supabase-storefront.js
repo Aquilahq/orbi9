@@ -1,4 +1,4 @@
-import { fetchProducts } from './src/supabase.js';
+import { fetchProducts } from './orbi9-database.js';
 
 const key = 'orbi9-catalog-v2';
 const marker = 'orbi9-supabase-catalog-hash';
