@@ -3,12 +3,15 @@
   const seed = [];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   const slugify = value => String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const galleryStyle = document.createElement('style');
+  galleryStyle.textContent = `.orbi9-detail-media{min-width:0}.orbi9-detail-hero{position:relative;background:#f3f1ec;border-radius:4px;display:flex;align-items:center;justify-content:center;min-height:420px}.detail-gallery-main{width:100%;height:420px;object-fit:contain}.gallery-arrow{position:absolute;z-index:1;width:42px;height:42px;border-radius:50%;background:#172033dd;color:#fff;font-size:30px;line-height:1}.gallery-prev{left:14px}.gallery-next{right:14px}.detail-gallery-thumbs{display:flex;gap:10px;overflow-x:auto;padding:12px 0 4px}.gallery-thumb{flex:0 0 76px;height:76px;padding:3px;border:1px solid #d8d5ce;background:#fff;border-radius:3px}.gallery-thumb.active{border:2px solid #a37b3d}.gallery-thumb img{width:100%;height:100%;object-fit:cover}.gallery-count{font-size:12px;color:#777;text-align:center;margin-top:6px}@media(max-width:700px){.orbi9-detail-hero,.detail-gallery-main{min-height:280px;height:280px}}`;
+  document.head.append(galleryStyle);
   // Admin products store uploaded/URL images in `images` and mark the selected
   // image with `primaryImage`; older imports may still use `image_url`.
   const productImage = product => {
     const images = Array.isArray(product?.images) ? product.images : [];
     const value = images[Number.isInteger(Number(product?.primaryImage)) ? Number(product.primaryImage) : 0] || images[0];
-    return product?.image_url || (typeof value === 'string' ? value : value?.src || value?.url) || product?.image || '/orbi9newlogo.png';
+    return (typeof value === 'string' ? value : value?.src || value?.url) || product?.image_url || product?.image || '/orbi9newlogo.png';
   };
   const getProducts = () => { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(data) ? data : seed; } catch { return seed; } };
   const saveProducts = products => localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
@@ -38,7 +41,14 @@
     [...main.children].forEach(node => node.style.display = 'none');
     const detail = document.createElement('section'); detail.className = 'orbi9-detail';
     const stock = stockLimit(product); const canAdd = stock !== 0; const quantityControl = Number.isFinite(stock) && stock > 1 ? `<label class="quantity-label">Quantity <input class="detail-quantity" type="number" min="1" max="${stock}" value="1"></label>` : '';
-    detail.innerHTML = `<div><img src="${esc(productImage(product))}" alt="${esc(product.name)}"></div><div class="orbi9-detail-copy"><div class="detail-category">${esc(product.category)}</div><h1>${esc(product.name)}</h1><div class="detail-price">$${Number(product.price || 0).toFixed(2)}</div><p>${esc(product.description || 'A considered object from the Orbi9 catalogue.')}</p><p class="stock-status">${canAdd ? (Number.isFinite(stock) ? `${stock} in stock` : 'In stock') : 'Out of stock'}</p>${quantityControl}<button class="btn detail-add-cart" type="button" ${canAdd ? '' : 'disabled'}>${canAdd ? 'ADD TO CART' : 'OUT OF STOCK'}</button><a class="orbi9-back" href="/">Back to catalogue</a></div>`;
+    const gallery = (Array.isArray(product.images) ? product.images : []).map(image => typeof image === 'string' ? image : image?.src || image?.url).filter(Boolean);
+    if (!gallery.length) gallery.push(productImage(product));
+    let galleryIndex = Math.min(Number(product.primaryImage) || 0, gallery.length - 1);
+    detail.innerHTML = `<div class="orbi9-detail-media"><div class="orbi9-detail-hero"><button class="gallery-arrow gallery-prev" type="button" aria-label="Previous image">‹</button><img class="detail-gallery-main" src="${esc(gallery[galleryIndex])}" alt="${esc(product.name)}"><button class="gallery-arrow gallery-next" type="button" aria-label="Next image">›</button></div><div class="detail-gallery-thumbs" role="list">${gallery.map((src,i)=>`<button class="gallery-thumb ${i===galleryIndex?'active':''}" type="button" data-gallery-index="${i}" aria-label="View image ${i+1}"><img src="${esc(src)}" alt=""></button>`).join('')}</div><div class="gallery-count">Image <span class="gallery-current">${galleryIndex+1}</span> of ${gallery.length}</div></div><div class="orbi9-detail-copy"><div class="detail-category">${esc(product.category)}</div><h1>${esc(product.name)}</h1><div class="detail-price">$${Number(product.price || 0).toFixed(2)}</div><p>${esc(product.description || 'A considered object from the Orbi9 catalogue.')}</p><p class="stock-status">${canAdd ? (Number.isFinite(stock) ? `${stock} in stock` : 'In stock') : 'Out of stock'}</p>${quantityControl}<button class="btn detail-add-cart" type="button" ${canAdd ? '' : 'disabled'}>${canAdd ? 'ADD TO CART' : 'OUT OF STOCK'}</button><a class="orbi9-back" href="/">Back to catalogue</a></div>`;
+    const setGalleryImage = index => { galleryIndex = (index + gallery.length) % gallery.length; detail.querySelector('.detail-gallery-main').src = gallery[galleryIndex]; detail.querySelector('.gallery-current').textContent = galleryIndex + 1; detail.querySelectorAll('.gallery-thumb').forEach((thumb,i) => thumb.classList.toggle('active', i === galleryIndex)); };
+    detail.querySelector('.gallery-prev').onclick = () => setGalleryImage(galleryIndex - 1);
+    detail.querySelector('.gallery-next').onclick = () => setGalleryImage(galleryIndex + 1);
+    detail.querySelectorAll('.gallery-thumb').forEach(thumb => thumb.onclick = () => setGalleryImage(Number(thumb.dataset.galleryIndex)));
     const addButton = detail.querySelector('.detail-add-cart');
     addButton.onclick = () => { const quantity = detail.querySelector('.detail-quantity')?.value || 1; if (addToCart(product, quantity)) { addButton.textContent = 'ADDED ✓'; setTimeout(() => { addButton.textContent = 'ADD TO CART'; }, 1200); } };
     main.append(detail); document.title = `${product.name} — ORBI9`;
