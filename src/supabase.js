@@ -1,10 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
+const createClient = window.supabase?.createClient;
+const url = window.ORBI9_SUPABASE_CONFIG?.url || import.meta.env.VITE_SUPABASE_URL;
+const key = window.ORBI9_SUPABASE_CONFIG?.key || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-if (!url || !key || key.includes('PASTE_YOUR')) {
-  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY in .env');
+if (!createClient || !url || !key || key.includes('PASTE_YOUR')) {
+  throw new Error('Supabase browser client or configuration is missing');
 }
 
 export const supabase = createClient(url, key, {
