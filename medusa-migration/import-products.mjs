@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 const base='http://localhost:9000';
-const email='orbi9-admin@local.test';
-const password=fs.readFileSync('/tmp/orbi9-medusa-admin-pass','utf8').trim();
+const email=process.env.MEDUSA_ADMIN_EMAIL;
+const password=process.env.MEDUSA_ADMIN_PASSWORD;
+if(!email || !password) throw new Error('Set MEDUSA_ADMIN_EMAIL and MEDUSA_ADMIN_PASSWORD');
 const login=await fetch(`${base}/auth/user/emailpass`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,password})});
 const {token}=await login.json(); if(!token) throw new Error('Medusa admin login failed');
 const source=JSON.parse(fs.readFileSync('medusa-migration/products.json','utf8'));
