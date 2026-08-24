@@ -8,10 +8,22 @@
   document.head.append(galleryStyle);
   // Admin products store uploaded/URL images in `images` and mark the selected
   // image with `primaryImage`; older imports may still use `image_url`.
+  const imageFallbacks = [
+    { match: /zenith|6-s-126|radio/i, src: '/product-images/vintage-radio.jpg' },
+    { match: /victor|vv-xiv|phonograph|gramophone/i, src: '/product-images/phonograph.jpg' },
+    { match: /western electric|91-a|amplifier/i, src: '/product-images/amplifier.jpg' },
+    { match: /tektronix|515|oscilloscope/i, src: '/product-images/oscilloscope.jpg' },
+    { match: /masudaya|space robot|robot/i, src: '/product-images/robot.jpg' }
+  ];
+  const imageFallback = product => imageFallbacks.find(item => item.match.test(`${product?.name || ''} ${product?.category || ''}`))?.src || '/product-images/vintage-radio.jpg';
+  const usableImage = value => {
+    const src = typeof value === 'string' ? value : value?.src || value?.url;
+    return src && !/orbi9newlogo/i.test(src) ? src : '';
+  };
   const productImage = product => {
     const images = Array.isArray(product?.images) ? product.images : [];
-    const value = images[Number.isInteger(Number(product?.primaryImage)) ? Number(product.primaryImage) : 0] || images[0];
-    return (typeof value === 'string' ? value : value?.src || value?.url) || product?.image_url || product?.image || '/orbi9newlogo.png';
+    const index = Number.isInteger(Number(product?.primaryImage)) ? Number(product.primaryImage) : 0;
+    return usableImage(images[index]) || usableImage(images[0]) || usableImage(product?.image_url) || usableImage(product?.image) || imageFallback(product);
   };
   const getProducts = () => { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(data) ? data : seed; } catch { return seed; } };
   const saveProducts = products => localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
@@ -41,7 +53,7 @@
     [...main.children].forEach(node => node.style.display = 'none');
     const detail = document.createElement('section'); detail.className = 'orbi9-detail';
     const stock = stockLimit(product); const canAdd = stock !== 0; const quantityControl = Number.isFinite(stock) && stock > 1 ? `<label class="quantity-label">Quantity <input class="detail-quantity" type="number" min="1" max="${stock}" value="1"></label>` : '';
-    const gallery = (Array.isArray(product.images) ? product.images : []).map(image => typeof image === 'string' ? image : image?.src || image?.url).filter(Boolean);
+    const gallery = (Array.isArray(product.images) ? product.images : []).map(usableImage).filter(Boolean);
     if (!gallery.length) gallery.push(productImage(product));
     let galleryIndex = Math.min(Number(product.primaryImage) || 0, gallery.length - 1);
     detail.innerHTML = `<div class="orbi9-detail-media"><div class="orbi9-detail-hero"><button class="gallery-arrow gallery-prev" type="button" aria-label="Previous image">‹</button><img class="detail-gallery-main" src="${esc(gallery[galleryIndex])}" alt="${esc(product.name)}"><button class="gallery-arrow gallery-next" type="button" aria-label="Next image">›</button></div><div class="detail-gallery-thumbs" role="list">${gallery.map((src,i)=>`<button class="gallery-thumb ${i===galleryIndex?'active':''}" type="button" data-gallery-index="${i}" aria-label="View image ${i+1}"><img src="${esc(src)}" alt=""></button>`).join('')}</div><div class="gallery-count">Image <span class="gallery-current">${galleryIndex+1}</span> of ${gallery.length}</div></div><div class="orbi9-detail-copy"><div class="detail-category">${esc(product.category)}</div><h1>${esc(product.name)}</h1><div class="detail-price">$${Number(product.price || 0).toFixed(2)}</div><p>${esc(product.description || 'A considered object from the Orbi9 catalogue.')}</p><p class="stock-status">${canAdd ? (Number.isFinite(stock) ? `${stock} in stock` : 'In stock') : 'Out of stock'}</p>${quantityControl}<button class="btn detail-add-cart" type="button" ${canAdd ? '' : 'disabled'}>${canAdd ? 'ADD TO CART' : 'OUT OF STOCK'}</button><a class="orbi9-back" href="/">Back to catalogue</a></div>`;
