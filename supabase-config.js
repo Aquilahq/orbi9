@@ -1,1 +1,1 @@
-window.ORBI9_SUPABASE_CONFIG={url:'https://tawsdlbilnxqovndjnwl.supabase.co',key:'sb_publishable_4kBfOsJy8ZniBOTMbxyfQA_77JmL8z1'};
+window.ORBI9_SUPABASE_CONFIG={url:'https://rogaddkicxzalpqfcpeq.supabase.co',key:'sb_publishable_M4wvop9Rer_mzYNESRoYrw_OCH5QRT6'};
