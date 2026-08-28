@@ -16,12 +16,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate PHP theme files
-        run: find orb9 -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find Orbi9 -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Validate JavaScript
-        run: node --check orb9/assets/js/orb9.js
+        run: node --check Orbi9/assets/js/Orbi9.js
 
       - name: Build installable theme package
         run: |
-          zip -qr orb9.zip orb9
-          unzip -t orb9.zip
+          zip -qr Orbi9.zip Orbi9
+          unzip -t Orbi9.zip
