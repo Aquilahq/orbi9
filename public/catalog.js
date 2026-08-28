@@ -1,7 +1,7 @@
 (() => {
   const STORAGE_KEY = 'orbi9-catalog-v2';
   const blockedDemoNames = new Set(['Retro Computer Terminal','Chrome Starburst Camera','Apollo Desk Radio','WESTERN ELECTRIC 91-A','MASUDAYA SPACE ROBOT','TEKTRONIX 515','ZENITH 6-S-126','VICTOR VV-XIV']);
-  const isDisplayable = product => !blockedDemoNames.has(String(product?.name || '')) && (!product?.status || /^published$/i.test(product.status));
+  const isDisplayable = product => !blockedDemoNames.has(String(product?.name || ''));
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   const slugify = value => String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const galleryStyle = document.createElement('style');
