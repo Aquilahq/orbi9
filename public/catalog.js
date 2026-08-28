@@ -1,6 +1,7 @@
 (() => {
   const STORAGE_KEY = 'orbi9-catalog-v2';
-  const seed = [];
+  const blockedDemoNames = new Set(['Retro Computer Terminal','Chrome Starburst Camera','Apollo Desk Radio','WESTERN ELECTRIC 91-A','MASUDAYA SPACE ROBOT','TEKTRONIX 515','ZENITH 6-S-126','VICTOR VV-XIV']);
+  const isDisplayable = product => !blockedDemoNames.has(String(product?.name || '')) && (!product?.status || /^published$/i.test(product.status));
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   const slugify = value => String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const galleryStyle = document.createElement('style');
@@ -8,14 +9,7 @@
   document.head.append(galleryStyle);
   // Admin products store uploaded/URL images in `images` and mark the selected
   // image with `primaryImage`; older imports may still use `image_url`.
-  const imageFallbacks = [
-    { match: /zenith|6-s-126|radio/i, src: '/product-images/vintage-radio.jpg' },
-    { match: /victor|vv-xiv|phonograph|gramophone/i, src: '/product-images/phonograph.jpg' },
-    { match: /western electric|91-a|amplifier/i, src: '/product-images/amplifier.jpg' },
-    { match: /tektronix|515|oscilloscope/i, src: '/product-images/oscilloscope.jpg' },
-    { match: /masudaya|space robot|robot/i, src: '/product-images/robot.jpg' }
-  ];
-  const imageFallback = product => imageFallbacks.find(item => item.match.test(`${product?.name || ''} ${product?.category || ''}`))?.src || '/product-images/vintage-radio.jpg';
+  const imageFallback = () => '/orbi9newlogo.png';
   const usableImage = value => {
     const src = typeof value === 'string' ? value : value?.src || value?.url;
     return src && !/orbi9newlogo/i.test(src) ? src : '';
@@ -25,9 +19,8 @@
     const index = Number.isInteger(Number(product?.primaryImage)) ? Number(product.primaryImage) : 0;
     return usableImage(images[index]) || usableImage(images[0]) || usableImage(product?.image_url) || usableImage(product?.image) || imageFallback(product);
   };
-  const getProducts = () => { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(data) ? data : seed; } catch { return seed; } };
+  const getProducts = () => { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(data) ? data.filter(isDisplayable) : []; } catch { return []; } };
   const saveProducts = products => localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-  if (!localStorage.getItem(STORAGE_KEY)) saveProducts(seed);
   window.Orbi9Catalog = { getProducts, saveProducts, slugify };
 
   const style = document.createElement('style');

@@ -17,6 +17,7 @@ const hash = value => JSON.stringify(value).length + ':' + JSON.stringify(value)
       }
     }
   } catch (error) {
-    console.warn('Supabase catalogue unavailable; using cached catalogue.', error.message);
+    localStorage.removeItem(key);
+    console.error('Supabase catalogue unavailable; storefront cleared.', error.message);
   }
 })();

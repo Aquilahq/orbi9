@@ -19,7 +19,7 @@ No database or product API existed in the inspected project. Supabase is present
 Existing storefront data has a single `image_url` concept and no storage bucket. This editor stores uploaded images as data URLs in the existing browser catalogue record, with URL images supported as well. A production Supabase Storage bucket/API should be wired into the adapter before using large images in production.
 
 ## Save and autosave workflow
-State is initialized from `orbi9-catalog-v2` (then `/orbi9-products.json`, then a safe demo record). Edits update the preview immediately. Changes are debounced for 1.5 seconds, then persisted through the existing `Orbi9Catalog.saveProducts` adapter. The explicit Save Changes action flushes immediately; status bar reports saving, saved, unsaved, and failed states.
+State is loaded from the authenticated Supabase `products` table; browser storage is only a short-lived view cache and never a product source. Edits update the preview immediately. Changes are debounced for 1.5 seconds, then persisted through the existing `Orbi9Catalog.saveProducts` adapter. The explicit Save Changes action flushes immediately; status bar reports saving, saved, unsaved, and failed states.
 
 ## Variant structure
 Options are represented as `{name, values[]}` and generated combinations as `{id, values: {Color: 'Black'}, price, sku, quantity, image}`. The UI supports adding/removing options and values and regenerating combinations without losing existing per-variant fields where possible.
@@ -28,4 +28,4 @@ Options are represented as `{name, values[]}` and generated combinations as `{id
 The existing session-gated admin login and credentials were retained. No authentication provider or server session endpoint was present, so this change does not rename or replace the current auth mechanism.
 
 ## Deployment considerations
-Run `npm run build` for the Vite bundle. Deploy the generated `dist/` through the existing static host. Browser-local edits are intentionally scoped to the current browser until an authenticated product API and storage bucket are configured; do not claim cross-device persistence until that backend exists.
+Run `npm run build` for the Vite bundle. Deploy the generated `dist/` through the existing static host. Supabase is the product source of truth; browser storage is not used as a fallback and public product reads depend on the configured RLS policy.
