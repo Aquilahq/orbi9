@@ -30,7 +30,6 @@ export async function onRequestPost({ request, env }) {
   const origin = new URL(request.url).origin;
   const params = new URLSearchParams({
     mode: 'payment',
-    'automatic_payment_methods[enabled]': 'true',
     success_url: `${origin}/?checkout=success`,
     cancel_url: `${origin}/?checkout=cancelled`,
     'shipping_address_collection[allowed_countries][0]': 'US',
