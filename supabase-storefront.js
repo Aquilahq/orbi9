@@ -8,7 +8,7 @@ const hash = value => JSON.stringify(value).length + ':' + JSON.stringify(value)
   try {
     const products = await fetchProducts();
     const next = JSON.stringify(products);
-    if (next !== localStorage.getItem(key)) {
+    if (products.length && next !== localStorage.getItem(key)) {
       localStorage.setItem(key, next);
       const signature = hash(products);
       if (sessionStorage.getItem(marker) !== signature) {
