@@ -9,6 +9,8 @@ const blank = () => ({ id:'', name:'', subtitle:'', sku:'', category:'', status:
 
 function renderList() {
   const q = $('search').value.trim().toLowerCase(), f = $('filter').value;
+  const count = $('productCount');
+  if (count) count.textContent = `${products.length} product${products.length === 1 ? '' : 's'}`;
   const visible = products.filter(p => (!q || `${p.name} ${p.sku||''} ${p.category||''}`.toLowerCase().includes(q)) && (f === 'all' || p.status === f));
   $('productList').innerHTML = visible.length ? visible.map(p => `<button class="product ${p.id===current?.id?'active':''}" data-id="${p.id}"><img class="thumb" src="${imageOf(p)}" onerror="this.src='/orbi9newlogo.png'"><span><strong>${escapeHtml(p.name || 'Untitled')}</strong><span class="muted">${escapeHtml(p.category || 'Uncategorised')} · $${Number(p.price||0).toFixed(2)}</span></span><span class="badge ${p.status==='Published'?'live':''}">${p.status}</span></button>`).join('') : '<div class="empty">No products found.</div>';
   document.querySelectorAll('.product[data-id]').forEach(b => b.onclick = () => select(products.find(p => p.id === b.dataset.id)));
