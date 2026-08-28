@@ -1,6 +1,10 @@
 (() => {
   const STORAGE_KEY = 'orbi9-catalog-v2';
-  const seed = [];
+  const seed = [
+    { id: 'orb-001', name: 'Chrome Starburst Camera', slug: 'chrome-starburst-camera', category: 'Cameras', price: 185, image_url: '/product-images/amplifier.jpg', images: ['/product-images/amplifier.jpg'], description: 'A collectible mid-century camera with sculptural chrome detailing and a beautifully tactile mechanical feel.', status: 'Published', featured: true, trackInventory: true, quantity: 1 },
+    { id: 'orb-002', name: 'Apollo Desk Radio', slug: 'apollo-desk-radio', category: 'Radios', price: 240, image_url: '/product-images/vintage-radio.jpg', images: ['/product-images/vintage-radio.jpg'], description: 'A space-age tabletop radio selected for its warm analogue character and iconic silhouette.', status: 'Published', featured: true, trackInventory: true, quantity: 1 },
+    { id: 'orb-003', name: 'Retro Computer Terminal', slug: 'retro-computer-terminal', category: 'Computing', price: 395, image_url: '/product-images/oscilloscope.jpg', images: ['/product-images/oscilloscope.jpg'], description: 'A distinctive vintage computing object for collectors, studios and curious desks.', status: 'Published', featured: true, trackInventory: true, quantity: 1 }
+  ];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   const slugify = value => String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const galleryStyle = document.createElement('style');
