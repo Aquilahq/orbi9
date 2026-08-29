@@ -67,7 +67,7 @@
   if (shopGrid) {
     const searchBox = document.querySelector('#catalog-search');
     const searchInput = document.querySelector('#catalog-search-input');
-    const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = products.filter(p => `${p.name} ${p.category} ${p.description || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.map(card).join(''); bindCartButtons(shopGrid); };
+    const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = products.filter(p => `${p.name} ${p.category} ${p.subtitle || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.length ? matches.map(card).join('') : '<p class="meta">No products match that search.</p>'; bindCartButtons(shopGrid); };
     shopGrid.innerHTML = products.map(card).join(''); bindCartButtons(shopGrid);
     searchInput?.addEventListener('input', renderSearchResults);
     document.querySelector('#search-toggle')?.addEventListener('click', event => { event.preventDefault(); if (searchBox) searchBox.hidden = false; searchInput?.focus(); });
