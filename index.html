@@ -146,7 +146,7 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
       logo.classList.add('logo-wandering');
       moveLogo();
       wanderTimer = setInterval(moveLogo, 7000);
-    }, 45000);
+    }, 20000);
   };
   ['click', 'keydown', 'pointermove', 'touchstart'].forEach(event => document.addEventListener(event, () => { stopWandering(); scheduleWandering(); }, { passive: true }));
   window.addEventListener('resize', () => { if (logo.classList.contains('logo-wandering')) moveLogo(); });
