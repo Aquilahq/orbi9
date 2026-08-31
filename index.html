@@ -139,15 +139,12 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
   const playRandomBeep = () => {
     const audio = new Audio(beepSource);
     audio.preload = 'auto';
-    const playExcerpt = () => {
-      const maxStart = Math.max(0, (audio.duration || 1) - 1);
-      audio.currentTime = Math.random() * maxStart;
-      audio.play().catch(() => {});
-      setTimeout(() => { audio.pause(); audio.removeAttribute('src'); }, 1000);
-    };
-    if (Number.isFinite(audio.duration) && audio.duration > 0) playExcerpt();
-    else audio.addEventListener('loadedmetadata', playExcerpt, { once: true });
-    audio.load();
+    const seekRandomSection = () => { const maxStart = Math.max(0, (audio.duration || 1) - 1); audio.currentTime = Math.random() * maxStart; };
+    if (Number.isFinite(audio.duration) && audio.duration > 0) seekRandomSection();
+    else audio.addEventListener('loadedmetadata', seekRandomSection, { once: true });
+    // Start during the original tap/click so iOS and Android allow playback.
+    audio.play().catch(() => {});
+    setTimeout(() => { audio.pause(); audio.removeAttribute('src'); }, 1000);
   };
   document.addEventListener('pointerover', event => {
     const target = event.target.closest?.('nav a, .icons a, #cart-button, a[href*="product="], a[href*="category="]');
