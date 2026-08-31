@@ -61,6 +61,8 @@
   };
   const products = getProducts();
   const requested = new URLSearchParams(location.search).get('product');
+  const categoryRequested = new URLSearchParams(location.search).get('category')?.trim() || '';
+  const visibleProducts = categoryRequested ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase()) : products;
   const detailProduct = products.find(p => (p.slug || slugify(p.name)) === requested);
   if (detailProduct) return renderDetail(detailProduct);
 
@@ -68,12 +70,12 @@
   if (shopGrid) {
     const searchBox = document.querySelector('#catalog-search');
     const searchInput = document.querySelector('#catalog-search-input');
-    const preview = document.createElement('div'); preview.className = 'search-preview'; preview.hidden = true; searchBox?.append(preview); const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = products.filter(p => `${p.name} ${p.category} ${p.subtitle || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.length ? matches.map(card).join('') : '<p class="meta">No products match that search.</p>'; preview.innerHTML = query ? matches.slice(0,5).map(p => `<a href="?product=${encodeURIComponent(p.slug || slugify(p.name))}">${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="">` : ''}<span>${esc(p.name)}<small>${esc(p.category || '')}</small></span></a>`).join('') : ''; preview.hidden = !query || !matches.length; bindCartButtons(shopGrid); };
-    shopGrid.innerHTML = products.map(card).join(''); bindCartButtons(shopGrid);
+    const preview = document.createElement('div'); preview.className = 'search-preview'; preview.hidden = true; searchBox?.append(preview); const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = visibleProducts.filter(p => `${p.name} ${p.category} ${p.subtitle || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.length ? matches.map(card).join('') : '<p class="meta">No products match this category or search.</p>';  preview.innerHTML = query ? matches.slice(0,5).map(p => `<a href="?product=${encodeURIComponent(p.slug || slugify(p.name))}">${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="">` : ''}<span>${esc(p.name)}<small>${esc(p.category || '')}</small></span></a>`).join('') : ''; preview.hidden = !query || !matches.length; bindCartButtons(shopGrid); };
+    shopGrid.innerHTML = visibleProducts.length ? visibleProducts.map(card).join('') : '<p class="meta">No products are currently listed in this category.</p>'; bindCartButtons(shopGrid);
     searchInput?.addEventListener('input', renderSearchResults);
     document.querySelector('#search-toggle')?.addEventListener('click', event => { event.preventDefault(); if (searchBox) searchBox.hidden = false; searchInput?.focus(); });
   }
   const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
   const categoryGrid = document.querySelector('#categories .grid');
-  if (categoryGrid) categoryGrid.innerHTML = categories.map(category => `<article class="card"><div class="eyebrow">Collection</div><h3>${esc(category)}</h3><p>${products.filter(p => p.category === category).length} pieces in the catalogue.</p><a class="product-link" href="#shop">Explore ${esc(category)}</a></article>`).join('');
+  if (categoryGrid) categoryGrid.innerHTML = categories.map(category => `<article class="card"><div class="eyebrow">Collection</div><h3>${esc(category)}</h3><p>${products.filter(p => p.category === category).length} pieces in the catalogue.</p><a class="product-link" href="?category=${encodeURIComponent(category)}#shop">Explore ${esc(category)}</a></article>`).join('');
 })();
