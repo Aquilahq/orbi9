@@ -131,9 +131,10 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
   const moveLogo = () => {
     const rect = logo.getBoundingClientRect();
     const maxX = Math.max(12, window.innerWidth - rect.width - 12);
-    const maxY = Math.max(12, window.innerHeight - rect.height - 12);
-    logo.style.left = `${12 + Math.random() * (maxX - 12)}px`;
-    logo.style.top = `${12 + Math.random() * (maxY - 12)}px`;
+    const left = 12 + Math.random() * (maxX - 12);
+    // Keep the logo visible in the header/menu band; never send it down the page.
+    logo.style.left = `${left}px`;
+    logo.style.top = `${12 + Math.random() * 48}px`;
   };
   const stopWandering = () => {
     clearInterval(wanderTimer);
