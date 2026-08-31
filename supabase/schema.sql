@@ -8,12 +8,8 @@ create table if not exists public.products (
   image_url text,
   description text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  slider boolean not null default false
+  updated_at timestamptz not null default now()
 );
-
-alter table public.products add column if not exists slider boolean not null default false;
-alter table public.products add column if not exists show_in_categories boolean not null default true;
 
 alter table public.products enable row level security;
 drop policy if exists "Public can read products" on public.products;
