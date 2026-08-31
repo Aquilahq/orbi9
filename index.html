@@ -30,7 +30,7 @@ h1,h2,h3,.logo-title,.trust b{ text-shadow:none }
   panel.id = 'cart-panel'; panel.innerHTML = '<button class="cart-close" aria-label="Close cart">×</button><h2>YOUR CART</h2><div id="cart-items"></div><div class="cart-total"></div><button class="btn cart-checkout">CHECKOUT</button><p class="cart-message"></p>';
   document.body.append(panel);
   const render = () => { syncCartProducts(); const el = document.getElementById('cart-items'); el.innerHTML = cart.length ? cart.map((x, i) => `<div class="cart-item">${x.img ? `<img src="${x.img}" alt="">` : ''}<span>${x.name}<small>${money(x.price)} × ${x.qty}</small></span><button data-remove="${i}">Remove</button></div>`).join('') : '<p class="meta">Your bag is empty.</p>'; document.querySelector('.cart-total').textContent = cart.length ? `TOTAL ${money(cart.reduce((a,x) => a + x.price*x.qty, 0))}` : ''; count(); };
-  const cartSound = new Audio('/stdoors.mp3'); cartSound.preload = 'auto';
+  const cartSound = new Audio('/public/stdoors.mp3'); cartSound.preload = 'auto';
   const playCartSound = () => { cartSound.currentTime = 0; cartSound.play().catch(() => {}); setTimeout(() => { cartSound.pause(); cartSound.currentTime = 0; }, 2000); };
   const open = () => { playCartSound(); panel.classList.add('open'); render(); }; window.addEventListener('orbi9-cart-added', () => { playCartSound(); const button = document.getElementById('cart-button'); button.classList.remove('cart-attention'); void button.offsetWidth; button.classList.add('cart-attention'); panel.classList.add('open'); render(); setTimeout(() => button.classList.remove('cart-attention'), 1900); });
   document.getElementById('cart-button').onclick = open;
