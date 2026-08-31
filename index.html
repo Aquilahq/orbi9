@@ -129,11 +129,11 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
   const bridgeSound = new Audio('/public/stbridge.mp3');
   bridgeSound.volume = 0.4;
   bridgeSound.preload = 'auto';
-  bridgeSound.play().catch(() => {
+  setTimeout(() => bridgeSound.play().catch(() => {
     const startBridge = () => { bridgeSound.play().catch(() => {}); document.removeEventListener('pointerdown', startBridge); document.removeEventListener('keydown', startBridge); };
     document.addEventListener('pointerdown', startBridge, { once: true });
     document.addEventListener('keydown', startBridge, { once: true });
-  });
+  }), 3000);
   const beepSource = '/public/stbeeps.mp3';
   const isSoundTarget = element => element?.matches('nav a, .icons a, #cart-button, a[href*="product="], a[href*="category="]');
   const playRandomBeep = () => {
