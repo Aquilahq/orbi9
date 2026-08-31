@@ -62,7 +62,7 @@
   const products = getProducts();
   const requested = new URLSearchParams(location.search).get('product');
   const categoryRequested = new URLSearchParams(location.search).get('category')?.trim() || '';
-  const visibleProducts = categoryRequested ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase()) : products;
+  const visibleProducts = categoryRequested ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase()) : products.filter(p => p.featured === true);
   const detailProduct = products.find(p => (p.slug || slugify(p.name)) === requested);
   if (detailProduct) return renderDetail(detailProduct);
 
@@ -75,7 +75,7 @@
     searchInput?.addEventListener('input', renderSearchResults);
     document.querySelector('#search-toggle')?.addEventListener('click', event => { event.preventDefault(); if (searchBox) searchBox.hidden = false; searchInput?.focus(); });
   }
-  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  const categories = [...new Set(products.filter(p => p.showInCategories !== false).map(p => p.category).filter(Boolean))];
   const categoryGrid = document.querySelector('#categories .grid');
   if (categoryGrid) categoryGrid.innerHTML = categories.map(category => { const sample = products.find(p => p.category === category); return `<article class="card category-card"><a href="?category=${encodeURIComponent(category)}#shop"><img src="${esc(sample ? productImage(sample) : imageFallback())}" alt="${esc(category)}"><div class="eyebrow">Collection</div><h3>${esc(category)}</h3><p>${products.filter(p => p.category === category).length} pieces in the catalogue.</p><span class="product-link">Explore ${esc(category)}</span></a></article>`; }).join('');
 })();
