@@ -127,23 +127,29 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
 (() => {
   const logo = document.querySelector('.floating-logo');
   if (!logo || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  let idleTimer, wanderTimer;
+  let idleTimer, wanderTimer, homeMarker;
   const moveLogo = () => {
     const rect = logo.getBoundingClientRect();
     const maxX = Math.max(12, window.innerWidth - rect.width - 12);
     const left = 12 + Math.random() * (maxX - 12);
-    // Keep the logo visible in the header/menu band; never send it down the page.
+    // Keep the logo visible in the top menu band; never send it down the page.
     logo.style.left = `${left}px`;
     logo.style.top = `${12 + Math.random() * 48}px`;
   };
   const stopWandering = () => {
     clearInterval(wanderTimer);
+    if (!logo.classList.contains('logo-wandering')) return;
     logo.classList.remove('logo-wandering');
     logo.removeAttribute('style');
+    if (homeMarker?.parentNode) { homeMarker.parentNode.insertBefore(logo, homeMarker); homeMarker.remove(); homeMarker = null; }
   };
   const scheduleWandering = () => {
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => {
+      homeMarker = document.createComment('robot-logo-home');
+      logo.parentNode.insertBefore(homeMarker, logo);
+      // Portal only the logo out of the header stacking context; the page never moves.
+      document.body.append(logo);
       logo.classList.add('logo-wandering');
       moveLogo();
       wanderTimer = setInterval(moveLogo, 7000);
