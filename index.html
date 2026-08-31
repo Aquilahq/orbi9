@@ -135,7 +135,7 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
     document.addEventListener('keydown', startBridge, { once: true });
   }), 3000);
   const beepSource = '/public/stbeeps.mp3';
-  const isSoundTarget = element => element?.matches('button, nav a, .icons a, #cart-button, a[href*="product="], a[href*="category="]');
+  const isSoundTarget = element => element?.matches('button:not(.quick-add):not(.detail-add-cart), nav a, .icons a:not(#cart-button), a[href*="product="], a[href*="category="]');
   const playRandomBeep = () => {
     const audio = new Audio(beepSource);
     audio.preload = 'auto';
@@ -147,9 +147,9 @@ h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:700;color:#e9fbff;text-shad
     setTimeout(() => { audio.pause(); audio.removeAttribute('src'); }, 1000);
   };
   document.addEventListener('pointerover', event => {
-    const target = event.target.closest?.('button, nav a, .icons a, #cart-button, a[href*="product="], a[href*="category="]');
+    const target = event.target.closest?.('button:not(.quick-add):not(.detail-add-cart), nav a, .icons a:not(#cart-button), a[href*="product="], a[href*="category="]');
     if (target && !target.contains(event.relatedTarget)) playRandomBeep();
   });
-  document.addEventListener('click', event => { if (isSoundTarget(event.target.closest?.('button, nav a, .icons a, #cart-button, a[href*="product="], a[href*="category="]'))) playRandomBeep(); });
+  document.addEventListener('click', event => { if (isSoundTarget(event.target.closest?.('button:not(.quick-add):not(.detail-add-cart), nav a, .icons a:not(#cart-button), a[href*="product="], a[href*="category="]'))) playRandomBeep(); });
 })();
 </script></body></html>
