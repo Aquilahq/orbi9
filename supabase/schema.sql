@@ -14,6 +14,17 @@ create table if not exists public.products (
 
 alter table public.products add column if not exists slider boolean not null default false;
 alter table public.products add column if not exists show_in_categories boolean not null default true;
+-- Keep every field written by the admin editor in the shared catalogue table.
+alter table public.products add column if not exists subtitle text;
+alter table public.products add column if not exists status text not null default 'Draft';
+alter table public.products add column if not exists featured boolean not null default false;
+alter table public.products add column if not exists sku text;
+alter table public.products add column if not exists quantity integer not null default 0;
+alter table public.products add column if not exists track_inventory boolean not null default true;
+alter table public.products add column if not exists images jsonb not null default '[]'::jsonb;
+alter table public.products add column if not exists primary_image integer not null default 0;
+alter table public.products add column if not exists variants jsonb not null default '{}'::jsonb;
+alter table public.products add column if not exists seo jsonb not null default '{}'::jsonb;
 
 alter table public.products enable row level security;
 drop policy if exists "Public can read products" on public.products;

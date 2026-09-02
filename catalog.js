@@ -1,7 +1,7 @@
 (() => {
   const STORAGE_KEY = 'orbi9-catalog-v2';
-  const blockedDemoNames = new Set(['Retro Computer Terminal','Chrome Starburst Camera','Apollo Desk Radio','WESTERN ELECTRIC 91-A','MASUDAYA SPACE ROBOT','TEKTRONIX 515','ZENITH 6-S-126','VICTOR VV-XIV']);
-  const isDisplayable = product => !blockedDemoNames.has(String(product?.name || ''));
+  // Supabase is the catalogue authority. Never hide a real product by name.
+  const isDisplayable = product => Boolean(product && product.name);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   const slugify = value => String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const galleryStyle = document.createElement('style');
@@ -62,7 +62,9 @@
   const products = getProducts();
   const requested = new URLSearchParams(location.search).get('product');
   const categoryRequested = new URLSearchParams(location.search).get('category')?.trim() || '';
-  const visibleProducts = categoryRequested ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase()) : products.filter(p => p.featured === true);
+  const visibleProducts = categoryRequested
+    ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase())
+    : products;
   const detailProduct = products.find(p => (p.slug || slugify(p.name)) === requested);
   if (detailProduct) return renderDetail(detailProduct);
 
