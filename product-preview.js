@@ -48,3 +48,7 @@ function refreshPreview() {
 Object.values(fields).forEach((field) => field?.addEventListener("input", refreshPreview));
 Object.values(fields).forEach((field) => field?.addEventListener("change", refreshPreview));
 refreshPreview();
+// Product selection is populated programmatically by the editor, so keep the
+// preview synchronized when fields change without emitting DOM events.
+const previewSync = window.setInterval(refreshPreview, 500);
+window.addEventListener("pagehide", () => window.clearInterval(previewSync), { once: true });
