@@ -24,6 +24,7 @@ alter table public.products add column if not exists track_inventory boolean not
 alter table public.products add column if not exists images jsonb not null default '[]'::jsonb;
 alter table public.products add column if not exists primary_image integer not null default 0;
 alter table public.products add column if not exists variants jsonb not null default '{}'::jsonb;
+alter table public.products add column if not exists tags jsonb not null default '[]'::jsonb;
 alter table public.products add column if not exists seo jsonb not null default '{}'::jsonb;
 
 alter table public.products enable row level security;

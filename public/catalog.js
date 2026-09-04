@@ -62,17 +62,23 @@
   const products = getProducts();
   const requested = new URLSearchParams(location.search).get('product');
   const categoryRequested = new URLSearchParams(location.search).get('category')?.trim() || '';
-  const visibleProducts = categoryRequested ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase()) : products.filter(p => p.featured === true);
+  const visibleProducts = categoryRequested ? products.filter(p => String(p.category || '').trim().toLowerCase() === categoryRequested.toLowerCase()) : products;
   const detailProduct = products.find(p => (p.slug || slugify(p.name)) === requested);
   if (detailProduct) return renderDetail(detailProduct);
 
   const shopGrid = document.querySelector('#shop .grid');
+  const categoryFilter = document.querySelector('#shop-category-filter');
+  const priceFilter = document.querySelector('#shop-price-filter');
+  const priceValue = document.querySelector('#shop-price-value');
+  const filterProducts = list => { const category = categoryFilter?.value || ''; const maxPrice = Number(priceFilter?.value || 5000); if (priceValue) priceValue.textContent = maxPrice >= 5000 ? 'Any price' : `Up to $${maxPrice.toFixed(0)}`; return list.filter(p => (!category || String(p.category || '') === category) && Number(p.price || 0) <= maxPrice); };
+  [...new Set(visibleProducts.map(p => String(p.category || '').trim()).filter(Boolean))].sort().forEach(category => categoryFilter?.append(new Option(category, category)));
+  if (categoryRequested && categoryFilter) categoryFilter.value = categoryRequested;
   if (shopGrid) {
     const searchBox = document.querySelector('#catalog-search');
     const searchInput = document.querySelector('#catalog-search-input');
-    const preview = document.createElement('div'); preview.className = 'search-preview'; preview.hidden = true; searchBox?.append(preview); const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = visibleProducts.filter(p => `${p.name} ${p.category} ${p.subtitle || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.length ? matches.map(card).join('') : '<p class="meta">No products match this category or search.</p>';  preview.innerHTML = query ? matches.slice(0,5).map(p => `<a href="?product=${encodeURIComponent(p.slug || slugify(p.name))}">${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="">` : ''}<span>${esc(p.name)}<small>${esc(p.category || '')}</small></span></a>`).join('') : ''; preview.hidden = !query || !matches.length; bindCartButtons(shopGrid); };
-    shopGrid.innerHTML = visibleProducts.length ? visibleProducts.map(card).join('') : '<p class="meta">No products are currently listed in this category.</p>'; bindCartButtons(shopGrid);
-    searchInput?.addEventListener('input', renderSearchResults);
+    const preview = document.createElement('div'); preview.className = 'search-preview'; preview.hidden = true; searchBox?.append(preview); const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = filterProducts(visibleProducts).filter(p => `${p.name} ${p.category} ${p.subtitle || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.length ? matches.map(card).join('') : '<p class="meta">No products match this category or search.</p>';  preview.innerHTML = query ? matches.slice(0,5).map(p => `<a href="?product=${encodeURIComponent(p.slug || slugify(p.name))}">${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="">` : ''}<span>${esc(p.name)}<small>${esc(p.category || '')}</small></span></a>`).join('') : ''; preview.hidden = !query || !matches.length; bindCartButtons(shopGrid); };
+    shopGrid.innerHTML = filterProducts(visibleProducts).length ? filterProducts(visibleProducts).map(card).join('') : '<p class="meta">No products match the selected filters.</p>'; bindCartButtons(shopGrid);
+    searchInput?.addEventListener('input', renderSearchResults); categoryFilter?.addEventListener('change', renderSearchResults); priceFilter?.addEventListener('input', renderSearchResults); document.querySelector('#shop-filter-reset')?.addEventListener('click', () => { if (categoryFilter) categoryFilter.value = ''; if (priceFilter) priceFilter.value = '5000'; renderSearchResults(); });
     document.querySelector('#search-toggle')?.addEventListener('click', event => { event.preventDefault(); if (searchBox) searchBox.hidden = false; searchInput?.focus(); });
   }
   const categories = [...new Set(products.filter(p => p.showInCategories !== false).map(p => p.category).filter(Boolean))];
