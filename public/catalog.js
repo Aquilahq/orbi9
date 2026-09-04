@@ -69,8 +69,11 @@
   const shopGrid = document.querySelector('#shop .grid');
   const categoryFilter = document.querySelector('#shop-category-filter');
   const priceFilter = document.querySelector('#shop-price-filter');
+  const minPriceFilter = document.querySelector('#shop-min-price');
   const priceValue = document.querySelector('#shop-price-value');
-  const filterProducts = list => { const category = categoryFilter?.value || ''; const maxPrice = Number(priceFilter?.value || 5000); if (priceValue) priceValue.textContent = maxPrice >= 5000 ? 'Any price' : `Up to $${maxPrice.toFixed(0)}`; return list.filter(p => (!category || String(p.category || '') === category) && Number(p.price || 0) <= maxPrice); };
+  const actualMaxPrice = Math.max(0, ...visibleProducts.map(p => Number(p.price || 0)));
+  if (priceFilter) { priceFilter.max = String(Math.ceil(actualMaxPrice)); priceFilter.placeholder = actualMaxPrice ? String(Math.ceil(actualMaxPrice)) : 'Any price'; }
+  const filterProducts = list => { const category = categoryFilter?.value || ''; const minPrice = Math.max(0, Number(minPriceFilter?.value || 0)); const maxPrice = Number(priceFilter?.value || actualMaxPrice); if (priceValue) priceValue.textContent = maxPrice >= actualMaxPrice ? `From $${minPrice.toFixed(0)} up` : `$${minPrice.toFixed(0)}–$${maxPrice.toFixed(0)}`; return list.filter(p => { const price = Number(p.price || 0); return (!category || String(p.category || '') === category) && price >= minPrice && price <= maxPrice; }); };
   [...new Set(visibleProducts.map(p => String(p.category || '').trim()).filter(Boolean))].sort().forEach(category => categoryFilter?.append(new Option(category, category)));
   if (categoryRequested && categoryFilter) categoryFilter.value = categoryRequested;
   if (shopGrid) {
@@ -78,7 +81,7 @@
     const searchInput = document.querySelector('#catalog-search-input');
     const preview = document.createElement('div'); preview.className = 'search-preview'; preview.hidden = true; searchBox?.append(preview); const renderSearchResults = () => { const query = (searchInput?.value || '').toLowerCase().trim(); const matches = filterProducts(visibleProducts).filter(p => `${p.name} ${p.category} ${p.subtitle || ''} ${p.description || ''} ${p.sku || ''}`.toLowerCase().includes(query)); shopGrid.innerHTML = matches.length ? matches.map(card).join('') : '<p class="meta">No products match this category or search.</p>';  preview.innerHTML = query ? matches.slice(0,5).map(p => `<a href="?product=${encodeURIComponent(p.slug || slugify(p.name))}">${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="">` : ''}<span>${esc(p.name)}<small>${esc(p.category || '')}</small></span></a>`).join('') : ''; preview.hidden = !query || !matches.length; bindCartButtons(shopGrid); };
     shopGrid.innerHTML = filterProducts(visibleProducts).length ? filterProducts(visibleProducts).map(card).join('') : '<p class="meta">No products match the selected filters.</p>'; bindCartButtons(shopGrid);
-    searchInput?.addEventListener('input', renderSearchResults); categoryFilter?.addEventListener('change', renderSearchResults); priceFilter?.addEventListener('input', renderSearchResults); document.querySelector('#shop-filter-reset')?.addEventListener('click', () => { if (categoryFilter) categoryFilter.value = ''; if (priceFilter) priceFilter.value = '5000'; renderSearchResults(); });
+    searchInput?.addEventListener('input', renderSearchResults); categoryFilter?.addEventListener('change', renderSearchResults); priceFilter?.addEventListener('input', renderSearchResults); document.querySelector('#shop-filter-reset')?.addEventListener('click', () => { if (categoryFilter) categoryFilter.value = ''; if (minPriceFilter) minPriceFilter.value = ''; if (priceFilter) priceFilter.value = ''; renderSearchResults(); });
     document.querySelector('#search-toggle')?.addEventListener('click', event => { event.preventDefault(); if (searchBox) searchBox.hidden = false; searchInput?.focus(); });
   }
   const categories = [...new Set(products.filter(p => p.showInCategories !== false).map(p => p.category).filter(Boolean))];
